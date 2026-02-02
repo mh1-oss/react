@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ملخص React: Routing + Axios + مفاهيم مهمة (مع أمثلة)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;700&family=Fredoka:wght@400;600&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Cute Pastel Palette */
+      --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #f3e5f5 50%, #e0f7fa 100%);
+      --card-bg: #ffffff;
+      --text-main: #5d5d81;
+      --text-muted: #9aa0c2;
+      --primary: #ff8fa3;
+      /* Pastel Pink */
+      --secondary: #80deea;
+      /* Pastel Cyan */
+      --accent: #ffb7b2;
+      /* Soft Red/Pink */
+      --border: #f8bbd0;
+      --shadow: 0 10px 25px rgba(255, 143, 163, 0.15);
+      --code-bg: #2d2a3e;
+      --code-text: #e3e9f2;
+      --radius: 24px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      line-height: 1.8;
+      min-height: 100vh;
+      overflow-x: hidden;
+      /* Prevent global horizontal scroll */
+    }
+
+    /* Custom Scrollbar for Chrome/Safari */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #fff0f3;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 99px;
+      border: 3px solid #fff0f3;
+    }
+
+    header {
+      padding: 50px 20px 30px;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-family: 'Fredoka', 'Vazirmatn', sans-serif;
+      font-size: clamp(32px, 5vw, 45px);
+      color: #fa709a;
+      text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(250, 112, 154, 0.2);
+    }
+
+    .sub {
+      color: var(--text-muted);
+      margin: 0 auto;
+      font-size: 17px;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 10px 20px;
+      border-radius: 50px;
+      backdrop-filter: blur(5px);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 30px;
+    }
+
+    @media (max-width: 900px) {
+      .wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        order: 2;
+      }
+
+      main {
+        order: 1;
+        min-width: 0;
+        /* Fix Grid blowout caused by code blocks */
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 30px 10px 20px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .sub {
+        padding: 8px 10px;
+        font-size: 15px;
+        border-radius: 20px;
+      }
+
+      section {
+        padding: 20px;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 2px solid white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    /* Table of Contents Sticky */
+    .toc {
+      padding: 25px;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .toc h2 {
+      font-size: 18px;
+      margin: 0 0 15px;
+      color: var(--primary);
+      text-align: center;
+      border-bottom: 2px dashed var(--border);
+      padding-bottom: 10px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      margin-bottom: 6px;
+    }
+
+    .toc a:hover {
+      background: #fff0f3;
+      color: var(--primary);
+      transform: translateX(-5px);
+    }
+
+    main {
+      width: 100%;
+    }
+
+    section {
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    section:hover {
+      transform: translateY(-3px);
+    }
+
+    section h2 {
+      margin: 0 0 15px;
+      font-size: 24px;
+      color: #6a6a9b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Decoration next to H2 */
+    section h2::before {
+      content: '✨';
+      font-size: 20px;
+    }
+
+    section h3 {
+      margin: 25px 0 10px;
+      font-size: 18px;
+      color: var(--primary);
+      background: #fff5f8;
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 15px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 99px;
+      background: var(--secondary);
+      color: #006064;
+      font-size: 13px;
+      font-weight: bold;
+      margin-inline-start: 10px;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Info & Warning Boxes */
+    .note,
+    .warn {
+      padding: 15px 20px;
+      border-radius: 18px;
+      margin: 15px 0;
+      font-size: 15px;
+    }
+
+    .note {
+      background: #e0f7fa;
+      border-right: 5px solid #26c6da;
+      color: #006064;
+    }
+
+    .warn {
+      background: #fff8e1;
+      border-right: 5px solid #ffca28;
+      color: #5d4037;
+    }
+
+    ul {
+      margin: 10px 0;
+      padding-right: 25px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    li::marker {
+      color: var(--primary);
+      font-size: 1.2em;
+    }
+
+    /* Code Blocks styling */
+    code {
+      font-family: 'Fredoka', ui-monospace, monospace;
+      font-size: 0.95em;
+      background: #f3e5f5;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #880e4f;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border-radius: 20px;
+      padding: 20px;
+      /* Improve mobile experience */
+      white-space: pre-wrap;
+      /* Wrap long lines */
+      word-break: break-word;
+      /* Break long words if needed */
+      margin: 15px 0 25px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+      border: 4px solid #eef2f6;
+
+      /* Force LTR for code */
+      direction: ltr !important;
+      text-align: left !important;
+      max-width: 100%;
+    }
+
+    pre code {
+      color: var(--code-text);
+      background: transparent;
+      padding: 0;
+    }
+
+    /* Grid for quick setup options */
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .grid2>div {
+      background: #fafafa;
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px dashed var(--border);
+    }
+
+    .small {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    details {
+      border: 2px solid #fce4ec;
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin: 15px 0;
+      background: #fff;
+      transition: all 0.3s;
+    }
+
+    details[open] {
+      background: #fff0f3;
+      border-color: var(--primary);
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--primary);
+      outline: none;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: #ede7f6;
+      color: #5e35b1;
+      font-size: 12px;
+      margin: 0 0 5px 6px;
+      border: 1px solid #d1c4e9;
+    }
+
+    footer {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      color: var(--text-muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    footer b {
+      color: var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>ملخص React: <span style="color:#26c6da">Routing</span> & <span style="color:#ab47bc">Axios</span> ✨</h1>
+    <p class="sub">🎀 ملخص لطيف للمفاهيم الأساسية برياكت 🎀</p>
+  </header>
+
+  <div class="wrap">
+    <!-- Sidebar -->
+    <aside class="card toc">
+      <h2>🌸 المحتويات</h2>
+      <a href="#setup">1) تجهيز المشروع 🛠️</a>
+      <a href="#routing">2) التنقل (Routing) 🚦</a>
+      <a href="#axios">3) الاتصال (Axios) 🌐</a>
+      <a href="#concepts">4) مفاهيم مهمة 💡</a>
+      <a href="#patterns">5) تنظيم الكود 📂</a>
+      <a href="#mistakes">6) تنبيهات ⚠️</a>
+      <a href="#mini">7) تطبيق عملي (Todo) ✅</a>
+      <a href="#vercel">8) مشاكل Vercel 🚀</a>
+    </aside>
+
+    <!-- Content -->
+    <main>
+      <section id="setup" class="card">
+        <h2>1) تجهيز سريع لمشروع React <span class="pill">بداية</span></h2>
+        <p>حتى تبلشين صح وبسرعة و هو الي علمنا الأستاذ عليه و كال يعتبر أحسن شي أنصحچ تستخدمين Vite لأنه أخف وأحدث:</p>
+        <div class="grid2">
+          <div>
+            <h3 style="margin-top:0">Vite (الأنسب) ⚡</h3>
+            <pre><code>npm create vite@latest my-app -- --template react
+cd my-app
+npm install
+npm run dev</code></pre>
+          </div>
+          <div>
+            <h3 style="margin-top:0">CRA (الطريقة القديمة) 🐢</h3>
+            <pre><code>npx create-react-app my-app
+cd my-app
+npm start</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="routing" class="card">
+        <h2>2) Routing (React Router) <span class="pill">تنقل</span></h2>
+        <p>
+          الـ Routing هو اللي يخلينا نسوي صفحات متعددة (مثل الرئيسية، المتجر، صفحة المنتج) بدون ما نسوي Refresh للصفحة.
+        </p>
+
+        <h3>تثبيت المكتبة</h3>
+        <pre><code>npm i react-router-dom</code></pre>
+
+        <h3>الإعداد الأساسي</h3>
+        <p class="small">بملف <code>main.jsx</code> نغلف التطبيق بـ BrowserRouter:</p>
+        <pre><code>import { BrowserRouter } from "react-router-dom";
+// ...
+&lt;BrowserRouter&gt;
+  &lt;App /&gt;
+&lt;/BrowserRouter&gt;</code></pre>
+
+        <h3>شلون نوزع الروابط؟</h3>
+        <pre><code>// App.jsx
+import { Routes, Route, Link } from "react-router-dom";
+import Home from "./pages/Home";
+import Products from "./pages/Products";
+
+export default function App() {
+  return (
+    &lt;div&gt;
+      &lt;nav&gt;
+        &lt;Link to="/"&gt;الرئيسية 🏠&lt;/Link&gt; | 
+        &lt;Link to="/products"&gt;المنتجات 🛍️&lt;/Link&gt;
+      &lt;/nav&gt;
+
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/products" element={&lt;Products /&gt;} /&gt;
+        &lt;Route path="*" element={&lt;h1&gt;404 Not Found 🙈&lt;/h1&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <h3>أدوات مفيدة (Hooks)</h3>
+        <ul>
+          <li><span class="tag">useNavigate</span>: من نريد ننقل المستخدم بالكود (مثلاً بعد ما يسوي Login).</li>
+          <li><span class="tag">useParams</span>: حتى نقرأ الـ id من الرابط <code>/product/55</code>.</li>
+        </ul>
+
+        <div class="warn">
+          <b>انتبهي:</b> لا تستخدمين <code>&lt;a href&gt;</code> للتنقل الداخلي، استخدمي <code>&lt;Link&gt;</code> حتى
+يشتغل و بال css الlink ياخذ نفس الخصائص مالa.       </div>
+      </section>
+
+      <section id="axios" class="card">
+        <h2>3) Axios <span class="pill">Data Fetching</span></h2>
+        <p>
+          مكتبة كلش لطيفة للتعامل وي السيرفرات (GET, POST).
+        </p>
+
+        <h3>تثبيت</h3>
+        <pre><code>npm i axios</code></pre>
+
+        <h3>مثال: جلب بيانات (GET)</h3>
+        <pre><code>import axios from "axios";
+import { useEffect, useState } from "react";
+
+export default function SweetUsers() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() =&gt; {
+    axios.get("https://jsonplaceholder.typicode.com/users")
+      .then(res =&gt; setUsers(res.data))
+      .catch(err =&gt; console.log("Error 😢", err));
+  }, []);
+
+  return (
+    &lt;ul&gt;
+      {users.map(u =&gt; &lt;li key={u.id}&gt;👤 {u.name}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+        <details>
+          <summary>شلون ندز بيانات (POST)؟ 📤</summary>
+          <p>كلش بسيطة:</p>
+          <pre><code>const addPost = async () =&gt; {
+  const newPost = { title: "هلاو", body: "تجربة بوست سريع" };
+  const res = await axios.post("https://api.com/posts", newPost);
+  console.log("Done! 🎉", res.data);
+};</code></pre>
+        </details>
+      </section>
+
+      <section id="concepts" class="card">
+        <h2>4) أهم مفاهيم React <span class="pill">Core</span></h2>
+
+        <h3>4.1 Props vs State</h3>
+        <div class="grid2">
+          <div>
+            <strong>Props 🎁</strong>
+            <p>بيانات تجيني من "أبوي" (Parent Component). ما أگدر أغيرها، بس أقراها.</p>
+          </div>
+          <div>
+            <strong>State 🎈</strong>
+            <p>بياناتي الخاصة (داخل الـ Component). أگدر أغيرها بـ <code>useState</code> ولما تتغير يتحدث الشكل.</p>
+          </div>
+        </div>
+
+        <h3>4.2 Hooks الأساسية</h3>
+        <ul>
+          <li><code>useState</code>: حتى نحفظ متغيرات تتغير (مثل عداد، نص مدخل، قائمة).</li>
+          <li><code>useEffect</code>: حتى نسوي شي أول ما الصفحة تفتح (مثل جلب بيانات).</li>
+        </ul>
+      </section>
+
+      <section id="patterns" class="card">
+        <h2>5) ترتيب الملفات <span class="pill">التنظيم</span></h2>
+        <p>ترتيب الملفات يخلي مشروعچ يفتح النفس للشغل. هذا اقتراح بسيط:</p>
+        <pre><code>src/
+  ├── components/   (أزرار، كروت، نافبار)
+  ├── pages/        (الصفحات الكاملة)
+  ├── hooks/        (Custom Hooks)
+  ├── api/          (إعدادات Axios)
+  ├── assets/       (صور، خطوط)
+  ├── App.jsx
+  └── main.jsx</code></pre>
+      </section>
+
+      <section id="mistakes" class="card">
+        <h2>6) أخطاء شائعة <span class="pill">تجنبيها</span></h2>
+        <ul>
+          <li>❌ <b>نسيان الـ key في الـ Map:</b> دائماً ضيفي <code>key={item.id}</code> حتى React ما يزعل.</li>
+          <li>❌ <b>تعديل الـ State مباشرة:</b> لا تكتبين <code>count = 5</code>، كتبي <code>setCount(5)</code>.</li>
+          <li>❌ <b>useEffect بدون Array:</b> اذا نسيتي <code>[]</code> بالنهاية، الـ request ممكن يتكرر مليون مرة!</li>
+        </ul>
+      </section>
+
+      <section id="mini" class="card">
+        <h2>7) مثال صغير: Todo List <span class="pill">تطبيق</span></h2>
+        <p>تطبيق مهام بسيط يجمع كل اللي تعلمتيه (State + Axios + Forms).</p>
+
+        <pre><code>function TodoApp(){
+  const [tasks, setTasks] = useState([]);
+  const [text, setText] = useState("");
+
+  const add = () => {
+    if(!text) return;
+    const newTask = { id: Date.now(), title: text };
+    setTasks([...tasks, newTask]); // إضافة للقائمة
+    setText(""); // تفريغ الحقل
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;input 
+        value={text} 
+        onChange={e => setText(e.target.value)} 
+        placeholder="شنو خطتچ اليوم؟ ✨" 
+      /&gt;
+      &lt;button onClick={add}&gt;إضافة&lt;/button&gt;
+      
+      &lt;ul&gt;
+        {tasks.map(t => &lt;li key={t.id}&gt;🌸 {t.title}&lt;/li&gt;)}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </section>
+
+      <section id="vercel" class="card">
+        <h2>8) مشاكل الرفع على Vercel 🚀 <span class="pill">Deployment</span></h2>
+        <p>
+          من ترفعين المشروع على Vercel وتستخدمين React Router، مرات من تسوين Refresh للصفحة أو تدخلين على رابط مباشر
+          (مثل <code>/products</code>)، الموقع يرجع 404 Not Found.
+          <br>
+          السبب لأن Vercel يدور على ملف اسمه <code>products.html</code> وما يلكاه، لأن احنا عندنا بس
+          <code>index.html</code> (SPA).
+        </p>
+
+        <div class="note">
+          <b>الحل كلش بسيط:</b> سوي ملف جديد بالروت مال المشروع (يعني يم الـ <code>package.json</code>) وسميه
+          <code>vercel.json</code> وخلي بيه هذا الكود:
+        </div>
+
+        <pre><code>{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}</code></pre>
+
+        <p>
+          هذا الكود يكول لـ Vercel: "أي رابط يجيك، حوله على <code>index.html</code> وخلي React Router هو يتصرف".
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p class="small">اذا عندچ أي سؤال أو تريدين شرح لجزء معين، آني موجود 🌷</p>
+  </footer>
+</body>
+
+</html>
