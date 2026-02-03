@@ -405,6 +405,9 @@ cd my-app
 npm start</code></pre>
           </div>
         </div>
+        <div class="warn">
+          <b>انتبهي:</b> بالإصدارات الحديثة مال <code>vite</code> نحتاج بس هذا الكود  <code>&lt;npx create-react-app my-app&gt;</code> لأن هو راح يسألنا إذا نريد نثبت ملفات ال npm مباشرة أو لا.
+</div>
       </section>
 
       <section id="routing" class="card">
@@ -430,7 +433,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 
-export default function App() {
+function App() {
   return (
     &lt;div&gt;
       &lt;nav&gt;
