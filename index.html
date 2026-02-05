@@ -383,6 +383,7 @@
       <a href="#mistakes">6) تنبيهات ⚠️</a>
       <a href="#mini">7) تطبيق عملي (Todo) ✅</a>
       <a href="#vercel">8) مشاكل Vercel 🚀</a>
+      <a href="#svgr">9) مكتبة SVGR (أيقونات) 🎨</a>
     </aside>
 
     <!-- Content -->
@@ -406,8 +407,9 @@ npm start</code></pre>
           </div>
         </div>
         <div class="warn">
-          <b>انتبهي:</b> بالإصدارات الحديثة مال <code>vite</code> نحتاج بس هذا الكود  <code>&lt;npx create-react-app my-app&gt;</code> لأن هو راح يسألنا إذا نريد نثبت ملفات ال npm مباشرة أو لا.
-</div>
+          <b>انتبهي:</b> بالإصدارات الحديثة مال <code>vite</code> نحتاج بس هذا الكود
+          <code>&lt;npx create-react-app my-app&gt;</code> لأن هو راح يسألنا إذا نريد نثبت ملفات ال npm مباشرة أو لا.
+        </div>
       </section>
 
       <section id="routing" class="card">
@@ -456,9 +458,32 @@ function App() {
           <li><span class="tag">useParams</span>: حتى نقرأ الـ id من الرابط <code>/product/55</code>.</li>
         </ul>
 
+        <h3>الفرق بين Link و a (ليش ما نستخدم a؟) 🤔</h3>
+        <div class="grid2">
+          <div>
+            <strong>&lt;Link&gt; (React Router) 🚀</strong>
+            <p>يغير الرابط <b>بدون Refresh</b>. يعني التطبيق يظل شغال والبيانات (State) ما تضيع، والتنقل يصير مثل البرق.
+            </p>
+          </div>
+          <div>
+            <strong>&lt;a&gt; (HTML Tag) 🐌</strong>
+            <p>يسوي <b>Full Page Reload</b>. يعني يعيد تحميل الصفحة من الصفر وكل البيانات المحفوظة تطير. نستخدمه بس
+              للروابط الخارجية (مثل Google).</p>
+          </div>
+        </div>
+
         <div class="warn">
-          <b>انتبهي:</b> لا تستخدمين <code>&lt;a href&gt;</code> للتنقل الداخلي، استخدمي <code>&lt;Link&gt;</code> حتى
-يشتغل و بال css الlink ياخذ نفس الخصائص مالa.       </div>
+          <b>خلاصة:</b> للتنقل داخل موقعنا نستخدم <code>Link</code>، وللروابط الخارجية نستخدم <code>a</code>.
+        </div>
+
+        <div class="note">
+          <b>ليش نحتاج المكتبة أصلاً؟ (سواء Link أو a)</b><br>
+          بدون مكتبة <code>React Router</code> (وتحديداً الـ <code>Routes</code>)، حتى لو غيرنا الرابط
+          بالمتصفح (سواء بـ <code>a</code> أو كتبتيه بيدچ)، الرياكت <b>ما راح يعرف شطلع يا صفحة</b>.<br>
+          <br>
+          المكتبة هي "الخريطة" اللي تكول: "من الرابط يصير <code>/home</code> طلع كومبوننت <code>Home</code>".<br>
+          فالـ <code>Link</code> هو وسيلة نقل ذكية (بدون ريفريش)، بس الخريطة (الـ Routing) هي الأساس حتى نوصل.
+        </div>
       </section>
 
       <section id="axios" class="card">
@@ -466,6 +491,15 @@ function App() {
         <p>
           مكتبة كلش لطيفة للتعامل وي السيرفرات (GET, POST).
         </p>
+
+        <h3>ليش نستخدم Axios بدل fetch؟ 😎</h3>
+        <ul>
+          <li>✨ <b>تحويل تلقائي (JSON):</b> بالـ fetch لازم خطوتين <code>.json()</code>، بالـ axios البيانات تجي جاهزة
+            بـ <code>res.data</code>.</li>
+          <li>🛡️ <b>اكتشاف الأخطاء:</b> الـ axios يعتبر الـ 404 و 500 أخطاء ويروح للـ <code>catch</code> مباشرة، الـ
+            fetch يعتبرها نجاح ولازم احنا نشيكها يدوياً.</li>
+          <li>📝 <b>كتابة أقل:</b> الكود يصير أقصر وأرتب.</li>
+        </ul>
 
         <h3>تثبيت</h3>
         <pre><code>npm i axios</code></pre>
@@ -508,7 +542,7 @@ export default function SweetUsers() {
         <div class="grid2">
           <div>
             <strong>Props 🎁</strong>
-            <p>بيانات تجيني من "أهلي" (Parent Component). ما أگدر أغيرها، بس أقراها.</p>
+            <p>بيانات تجيني من "أبوي" (Parent Component). ما أگدر أغيرها، بس أقراها.</p>
           </div>
           <div>
             <strong>State 🎈</strong>
@@ -601,6 +635,53 @@ export default function SweetUsers() {
         <p>
           هذا الكود يكول لـ Vercel: "أي رابط يجيك، حوله على <code>index.html</code> وخلي React Router هو يتصرف".
         </p>
+      </section>
+
+      <section id="svgr" class="card">
+        <h2>9) مكتبة SVGR 🎨 <span class="pill">Icons</span></h2>
+        <p>
+          هاي المكتبة كلش مفيدة، شغلها تحول ملفات الـ SVG (الأيقونات) إلى <strong>React Components</strong>.<br>
+          ليش نستخدمها؟ حتى نكدر نتحكم بلون وحجم الأيقونة بالـ CSS (مثل <code>color</code> و <code>font-size</code>) بدل
+          ما تكون صورة ثابتة.
+        </p>
+
+        <h3>1. التثبيت (Installation)</h3>
+        <pre><code>npm install -D vite-plugin-svgr</code></pre>
+
+        <h3>2. الإعداد (vite.config.js)</h3>
+        <p class="small">لازم نضيفها لقائمة الـ plugins:</p>
+        <pre><code>import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import svgr from "vite-plugin-svgr"; 
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react(), svgr()],
+})</code></pre>
+
+        <h3>3. الاستخدام</h3>
+        <p>من نسوي import للأيقونة، نضيف <code>?react</code> بنهاية المسار:</p>
+        <pre><code>// نستوردها كـ Component
+import StarIcon from './assets/star.svg?react';
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;أيقوناتنا الحلوة&lt;/h1&gt;
+      
+      {/* نكدر نتحكم بالستايل مباشرة */}
+      &lt;StarIcon style={{ color: 'gold', width: '50px' }} /&gt;
+      
+      {/* أو عن طريق كلاس */}
+      &lt;StarIcon className="favorite-icon" /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+        <div class="note">
+          <b>ملاحظة مهمة:</b> حتى يشتغل تغيير اللون (<code>color: red</code> مثلاً)، لازم تفتحين ملف الـ SVG نفسه
+          وتغيرين الـ <code>fill</code> أو الـ <code>stroke</code> وتسويه <code>"currentColor"</code>.
+        </div>
       </section>
     </main>
   </div>
